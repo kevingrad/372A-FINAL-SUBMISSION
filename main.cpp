@@ -8,9 +8,8 @@
 #include "pwm.h"
 #include "led.h"
 
-/* Include the RFID library */
-//make sure to go to libraries and add this manually
-//search MFRC522
+// We use the mfrc522 library instead of our own RFID library.
+// Add it by going to PlatformIO library tab and searching mfrc522, add to project.
 #include <mfrc522.h>
 
 /* Define the DIO used for the SDA (SS) and RST (reset) pins. */
@@ -23,63 +22,48 @@ MFRC522 mfrc522(SDA_DIO, RESET_DIO);
 
 int main()
 {   
+    // Initialize all components as we have done before.
     init();
-    // initTimer4();
     initTimer1();
     initTimer0();
     initLCD();
     initPWM();
     initLED();
-    // initPWMTimer3();
-    // change_frequency(50);
-
+    
+    //LED starts in the blue state.
     turnBlue();
     moveCursor(0, 0); // moves the cursor to 0,0 position
+    // Default state is locked and displaying the message Scan RFID.
     writeString(" Scan RFID");
 
-    // put your setup code here, to run once:
     Serial.begin(9600);
-    /* Enable the SPI interface */
+    // Enables the SPI interface.
     SPI.begin();
  
-    /* Initialise the RFID reader */
+    // RFID module initialization.
     mfrc522.PCD_Init();
-
-
     DDRC |= (1 << PORTC1);
     
+    // Allow global interrupts.
     sei();
   
-
-    // Serial.println("RFID reading UID");
-
     while (1)
     {
-        
-        // Turn(500);
-        // _delay_ms(2000);
-        // Turn(1000);
-        // _delay_ms(2000);
-
-        //set values for the fob/card we're using
+        // Hardcoded values for the master fob/card
         int fobBytes[4] = {236, 51, 39, 35};
         int cardBytes[4] = {201, 168, 165, 185};
 
-    
+        // This if is only triggered the user presents a key/fob.
         if (mfrc522.PICC_IsNewCardPresent())
         {   
             PORTC |= (1 << PORTC1);
             //reads card/fob serial num.
             mfrc522.PICC_ReadCardSerial();
-            // Serial.println("Card detected:");
-
-            //serial num. is stored as list, so must be iterated and printed
+            // The UID needs to be iterated over 4 times because it contains 4 bytes. 
             for (int i = 0; i < mfrc522.uid.size; i++)
             {
-                //Serial.print(mfrc522.uid.uidByte[i]);
-                //Serial.print(mfrc522.uid.uidByte[i], HEX);
-                //Serial.print(RC522.serNum[i],HEX); //to print card detail in Hexa Decimal format
-
+                // If a match is found with the master card, then we turn the LED green,
+                // unlock the door, and delay for 10 seconds. After ten seconds, the door locks again.
                 if (fobBytes[i] == mfrc522.uid.uidByte[i] || cardBytes[i] == mfrc522.uid.uidByte[i])
                 {
                     turnGreen();
@@ -91,13 +75,11 @@ int main()
                     Turn(500);
                     delayMs(10000);
                     Turn(1000);
-                    
-                    // _delay_ms(2000); 
-                    // Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-                    // Serial.print(mfrc522.uid.uidByte[i], DEC);
-                    
                 }
                 
+                // If the presented key card is not valid, then the LED turns green and the LCD
+                // displays an "Invalid Key Card" message followed by "Please Try Again" followed
+                // by a "Scan RFID Again" message.
                 else
                 {
                     turnRed();
@@ -110,12 +92,10 @@ int main()
                     moveCursor(0, 0); // moves the cursor to 0,0 position
                     writeString(" Scan RFID Again");
                     turnBlue();              
-                    // Serial.print("Card Not Accepted");
-                    
                     break;
 
                 }
-
+                    // Default state where LED is blue and LCD reads "The Door Is: Locked"
                     i = 0;
                     turnBlue();
                     eightBitCommandWithDelay(1, 4000);
@@ -128,22 +108,11 @@ int main()
                     moveCursor(0, 0); // moves the cursor to 0,0 position
                     writeString(" Scan RFID");
                     break;
-                
             }
-
-            // Serial.println();
-            // Serial.println();
+            // Similar to a stop data transfer until the next while(1).
             mfrc522.PICC_HaltA();
-
-            //Serial.print(sum);
-
-            
         }
-
-    
     }
-
-
  }
 
 
