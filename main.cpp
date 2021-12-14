@@ -1,4 +1,6 @@
-
+//Kevin Grady, Cameron Sexton, Kathryn Hoang, Sheehab Zaman
+//Final Project
+//ECE372A 
 #include <Arduino.h>
 #include <avr/io.h>
 #include <SPI.h>
