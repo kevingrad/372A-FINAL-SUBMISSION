@@ -3,6 +3,7 @@
 #include "led.h"
 
 void initLED(){ //LED order red ground green blue
+    //initialize pins for LEDs
     // PIN HEADS 34 AND 35 and 36 
        DDRC |= (1 << PORTC1) | (1 << PORTC2) | (1 << PORTC3);
        //PORTC |= (1 << PORTC2) | (1 << PORTC3);
