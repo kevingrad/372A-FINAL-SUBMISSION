@@ -6,7 +6,7 @@
 void initTimer1();
 void delayUs(unsigned int delay);
 void initTimer0();
-// void delayS(unsigned int delay); 
+// void delayS(unsigned int delay);
 // void initTimer4();
 void delayMs(unsigned int delay);
 
