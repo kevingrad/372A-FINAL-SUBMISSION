@@ -21,13 +21,13 @@ void initPWM() {
 }
 
 void Turn(int way){
+    // Giving a parameter of 500 turns it to be flat (unlocked).
     if (way == 500) {
         OCR3C = OCR3A * 0.05;
-        // Serial.println("Unlocking");
     }
+    // Giving a parameter of 1000 turns it to be perpendicular to the ground (locked).
     else if (way == 1000) {
-        OCR3C = OCR3A * 0.1; 
-        // Serial.println("Locking");      
+        OCR3C = OCR3A * 0.1;       
     }
         
 }
